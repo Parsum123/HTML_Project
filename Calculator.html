@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Animated Mobile Calculator</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f1724;margin:0;}
+    .calc{background:#1e293b;padding:20px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,0.5);width:320px;}
+    .display-container{margin-bottom:20px;position:relative;}
+    .display{background:#0f1724;color:#fff;font-size:32px;text-align:right;padding:20px;border-radius:12px;overflow-x:auto;transition: box-shadow 0.3s ease;}
+    .display.flash{box-shadow: 0 0 20px #10b981;}
+    .preview{color:#94a3b8;font-size:18px;text-align:right;padding:5px 10px;opacity:0;transition: opacity 0.3s ease;}
+    .preview.show{opacity:1;}
+    .buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    button{padding:20px;font-size:20px;border:none;border-radius:12px;background:#334155;color:#fff;cursor:pointer;transition: transform 0.15s ease, background 0.2s;}
+    button:active{transform: scale(0.9);}
+    .btn-op{background:#60a5fa;color:#07203a;font-weight:bold;}
+    .btn-op:active{background:#3b82f6;color:#fff;}
+    .btn-eq{grid-column:span 2;background:#10b981;color:#07203a;font-weight:bold;}
+    .btn-eq:active{background:#059669;color:#fff;}
+  </style>
+</head>
+<body>
+  <div class="calc">
+    <div class="display-container">
+      <div id="display" class="display">0</div>
+      <div id="preview" class="preview"></div>
+    </div>
+    <div class="buttons">
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="delChar()">⌫</button>
+      <button onclick="append('(')">(</button>
+      <button onclick="append(')')">)</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="btn-op" onclick="append('×')">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="btn-op" onclick="append('÷')">÷</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="btn-op" onclick="append('−')">−</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button class="btn-eq" onclick="calculate()">=</button>
+      <button class="btn-op" onclick="append('+')">+</button>
+    </div>
+  </div>
+
+  <script>
+    let display = document.getElementById('display');
+    let preview = document.getElementById('preview');
+
+    function append(val){
+      if(display.innerText === '0' || display.innerText==='Error'){ display.innerText = val; }
+      else{ display.innerText += val; }
+      updatePreview();
+    }
+
+    function clearDisplay(){ 
+      display.innerText='0'; 
+      preview.innerText='';
+      preview.classList.remove('show');
+    }
+
+    function delChar(){
+      if(display.innerText.length<=1){ display.innerText='0'; }
+      else{ display.innerText = display.innerText.slice(0,-1); }
+      updatePreview();
+    }
+
+    function calculate(){
+      try{
+        let expr = cleanExpr(display.innerText);
+        let result = eval(expr);
+        display.innerText = result;
+        preview.innerText = '';
+        preview.classList.remove('show');
+        display.classList.add('flash');
+        setTimeout(()=>display.classList.remove('flash'),300);
+      }catch(e){ display.innerText='Error'; preview.innerText=''; preview.classList.remove('show'); }
+    }
+
+    function updatePreview(){
+      try{
+        let expr = cleanExpr(display.innerText);
+        if(expr.trim()==='') { preview.innerText=''; preview.classList.remove('show'); return; }
+        let result = eval(expr);
+        preview.innerText = '= ' + result;
+        preview.classList.add('show');
+      }catch(e){ preview.innerText=''; preview.classList.remove('show'); }
+    }
+
+    function cleanExpr(str){
+      return str.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-');
+    }
+  </script>
+</body>
+</html>
